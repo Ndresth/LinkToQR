@@ -1,12 +1,7 @@
+# Sitio 100 % estático: no hay comando de build ni funciones.
 [build]
   publish = "public"
-  functions = "netlify/functions"
-
-[build.environment]
-  NODE_VERSION = "22"
-
-[functions]
-  node_bundler = "esbuild"
+  command = ""
 
 [[headers]]
   for = "/*"
