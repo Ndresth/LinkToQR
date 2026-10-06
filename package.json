@@ -1,0 +1,16 @@
+{
+  "name": "linktoqr",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Generador de códigos QR permanentes a partir de enlaces o archivos. Desplegable en Netlify.",
+  "type": "module",
+  "scripts": {
+    "dev": "netlify dev"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "dependencies": {
+    "@netlify/blobs": "^11.1.3"
+  }
+}
