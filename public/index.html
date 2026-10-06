@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="es" data-bs-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LinkToQR · Códigos QR que no expiran</title>
+  <meta name="description" content="Genera códigos QR permanentes a partir de un enlace. Personaliza colores, estilo y logo, y descárgalos en PNG o SVG.">
+  <meta name="theme-color" content="#5b4bff">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+
+  <script>
+    // Aplica el tema guardado antes de pintar para evitar parpadeo.
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem("ltq-theme"); } catch (e) {}
+      if (!t) t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      document.documentElement.setAttribute("data-bs-theme", t);
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+        integrity="sha384-CK2SzKma4jA5H/MXDUU7i1TqZlCFaD4T01vtyDFvPlD97JQyS+IsSh1nI2EFbpyk" crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div class="bg-blobs" aria-hidden="true">
+    <span class="blob blob-1"></span>
+    <span class="blob blob-2"></span>
+    <span class="blob blob-3"></span>
+  </div>
+
+  <nav class="navbar navbar-expand py-3">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="/">
+        <span class="brand-mark"><i class="bi bi-qr-code"></i></span>
+        LinkToQR
+      </a>
+      <div class="d-flex align-items-center gap-2">
+        <a class="btn btn-sm btn-ghost d-none d-sm-inline-flex" href="#como-funciona">Cómo funciona</a>
+        <button id="themeToggle" class="btn btn-sm btn-ghost" type="button" aria-label="Cambiar tema claro/oscuro">
+          <i class="bi bi-moon-stars-fill"></i>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="container text-center hero">
+    <span class="badge rounded-pill badge-soft mb-3"><i class="bi bi-infinity me-1"></i> QR estáticos · sin fecha de vencimiento</span>
+    <h1 class="display-5 fw-bolder mb-3">Convierte cualquier enlace en un <span class="text-gradient">código QR permanente</span></h1>
+    <p class="lead text-body-secondary mx-auto hero-lead">Pega un enlace, personaliza el diseño y descarga tu QR en PNG o SVG. Sin registro, sin anuncios y sin expiración.</p>
+  </header>
+
+  <main class="container pb-5">
+    <div class="row g-4 justify-content-center">
+      <!-- Columna de configuración -->
+      <div class="col-lg-7">
+        <div class="card glass-card shadow-lg border-0">
+          <div class="card-body p-4 p-md-5">
+            <label for="urlInput" class="form-label fw-semibold">Dirección web</label>
+            <div class="input-group input-group-lg">
+              <span class="input-group-text"><i class="bi bi-globe2"></i></span>
+              <input type="text" class="form-control" id="urlInput" placeholder="https://tu-sitio.com/pagina" autocomplete="off" spellcheck="false" inputmode="url" autofocus>
+              <button class="btn btn-outline-secondary" type="button" id="pasteBtn" title="Pegar del portapapeles">
+                <i class="bi bi-clipboard"></i>
+              </button>
+            </div>
+            <div class="form-text" id="urlHelp">El QR se genera al instante mientras escribes. Si omites <code>https://</code> lo añadimos por ti.</div>
+            <div class="invalid-feedback d-block d-none" id="urlError">Ese enlace no parece válido.</div>
+
+            <hr class="my-4">
+
+            <!-- Personalización -->
+            <button class="btn btn-customize w-100 d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#customize" aria-expanded="true" aria-controls="customize">
+              <span><i class="bi bi-palette2 me-2"></i>Personalizar diseño</span>
+              <i class="bi bi-chevron-down chevron"></i>
+            </button>
+
+            <div class="collapse show" id="customize">
+              <div class="pt-4">
+                <div class="mb-4">
+                  <span class="form-label fw-semibold d-block">Plantillas</span>
+                  <div class="d-flex flex-wrap gap-2" id="presets">
+                    <button type="button" class="preset" data-fg="#111827" data-bg="#ffffff" data-dots="square" data-corner="square" title="Clásico"><span style="--a:#111827;--b:#ffffff"></span></button>
+                    <button type="button" class="preset" data-fg="#5b4bff" data-bg="#ffffff" data-dots="rounded" data-corner="extra-rounded" title="Violeta"><span style="--a:#5b4bff;--b:#ffffff"></span></button>
+                    <button type="button" class="preset" data-fg="#0f766e" data-bg="#ecfdf5" data-dots="dots" data-corner="dot" title="Menta"><span style="--a:#0f766e;--b:#ecfdf5"></span></button>
+                    <button type="button" class="preset" data-fg="#be123c" data-bg="#fff1f2" data-dots="classy-rounded" data-corner="extra-rounded" title="Coral"><span style="--a:#be123c;--b:#fff1f2"></span></button>
+                    <button type="button" class="preset" data-fg="#f8fafc" data-bg="#0f172a" data-dots="extra-rounded" data-corner="extra-rounded" title="Noche"><span style="--a:#f8fafc;--b:#0f172a"></span></button>
+                    <button type="button" class="preset" data-fg="#b45309" data-bg="#fffbeb" data-dots="classy" data-corner="square" title="Ámbar"><span style="--a:#b45309;--b:#fffbeb"></span></button>
+                  </div>
+                </div>
+
+                <div class="row g-3">
+                  <div class="col-6 col-md-2">
+                    <label for="fgColor" class="form-label small fw-semibold">Color</label>
+                    <input type="color" class="form-control form-control-color w-100" id="fgColor" value="#111827">
+                  </div>
+                  <div class="col-6 col-md-2">
+                    <label for="bgColor" class="form-label small fw-semibold">Fondo</label>
+                    <input type="color" class="form-control form-control-color w-100" id="bgColor" value="#ffffff">
+                  </div>
+                  <div class="col-6 col-md-4">
+                    <label for="dotStyle" class="form-label small fw-semibold">Puntos</label>
+                    <select class="form-select" id="dotStyle">
+                      <option value="square">Cuadrados</option>
+                      <option value="rounded">Redondeados</option>
+                      <option value="extra-rounded">Muy redondeados</option>
+                      <option value="dots">Círculos</option>
+                      <option value="classy">Elegante</option>
+                      <option value="classy-rounded">Elegante redondeado</option>
+                    </select>
+                  </div>
+                  <div class="col-6 col-md-4">
+                    <label for="cornerStyle" class="form-label small fw-semibold">Esquinas</label>
+                    <select class="form-select" id="cornerStyle">
+                      <option value="square">Cuadradas</option>
+                      <option value="extra-rounded">Redondeadas</option>
+                      <option value="dot">Circulares</option>
+                    </select>
+                  </div>
+
+                  <div class="col-6 col-md-4">
+                    <label for="ecLevel" class="form-label small fw-semibold">Corrección de error</label>
+                    <select class="form-select" id="ecLevel">
+                      <option value="L">Baja (7%)</option>
+                      <option value="M">Media (15%)</option>
+                      <option value="Q" selected>Alta (25%)</option>
+                      <option value="H">Máxima (30%)</option>
+                    </select>
+                  </div>
+                  <div class="col-6 col-md-4">
+                    <label for="exportSize" class="form-label small fw-semibold">Tamaño PNG</label>
+                    <select class="form-select" id="exportSize">
+                      <option value="512">512 px</option>
+                      <option value="1024" selected>1024 px</option>
+                      <option value="2048">2048 px</option>
+                    </select>
+                  </div>
+                  <div class="col-md-4">
+                    <label for="marginRange" class="form-label small fw-semibold d-flex justify-content-between">
+                      <span>Margen</span><span class="text-body-secondary" id="marginValue">12 px</span>
+                    </label>
+                    <input type="range" class="form-range mt-2" id="marginRange" min="0" max="40" step="2" value="12">
+                  </div>
+
+                  <div class="col-12">
+                    <label for="logoInput" class="form-label small fw-semibold">Logo central (opcional)</label>
+                    <div class="input-group">
+                      <input type="file" class="form-control" id="logoInput" accept="image/*">
+                      <button class="btn btn-outline-secondary d-none" type="button" id="logoClear" title="Quitar logo"><i class="bi bi-x-lg"></i></button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna de vista previa -->
+      <div class="col-lg-5">
+        <div class="preview-sticky">
+          <div class="card glass-card shadow-lg border-0">
+            <div class="card-body p-4 text-center">
+              <div class="qr-frame mx-auto" id="qrFrame">
+                <div id="qrCanvas" class="qr-canvas"></div>
+                <div class="qr-empty" id="qrEmpty">
+                  <i class="bi bi-qr-code-scan"></i>
+                  <p class="mb-0 small">Tu código QR aparecerá aquí</p>
+                </div>
+              </div>
+
+              <p class="small text-body-secondary text-truncate mt-3 mb-3 px-2" id="qrTarget" title="">Escribe un enlace para generar tu QR</p>
+
+              <div class="d-grid gap-2">
+                <div class="btn-group" role="group" aria-label="Descargar">
+                  <button type="button" class="btn btn-primary btn-lg" id="downloadPng" disabled><i class="bi bi-download me-1"></i> PNG</button>
+                  <button type="button" class="btn btn-outline-primary btn-lg" id="downloadSvg" disabled><i class="bi bi-filetype-svg me-1"></i> SVG</button>
+                </div>
+                <button type="button" class="btn btn-ghost" id="copyImage" disabled><i class="bi bi-clipboard-check me-1"></i> Copiar imagen</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card glass-card shadow border-0 mt-4">
+            <div class="card-body p-4">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h2 class="h6 fw-bold mb-0"><i class="bi bi-clock-history me-1"></i> Recientes</h2>
+                <button type="button" class="btn btn-sm btn-link text-body-secondary p-0 d-none" id="historyClear">Borrar</button>
+              </div>
+              <ul class="list-unstyled mb-0 history" id="historyList"></ul>
+              <p class="small text-body-secondary mb-0" id="historyEmpty">Aquí verás los QR que generes (solo en este navegador).</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cómo funciona -->
+    <section id="como-funciona" class="pt-5 mt-4">
+      <h2 class="h3 fw-bold text-center mb-4">¿Por qué tus QR no expiran?</h2>
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="feature card h-100 border-0 glass-card">
+            <div class="card-body p-4">
+              <div class="feature-icon"><i class="bi bi-infinity"></i></div>
+              <h3 class="h5 fw-bold">QR estáticos</h3>
+              <p class="text-body-secondary mb-0">El enlace va codificado directamente en el QR, sin acortadores ni redirecciones intermedias que puedan caducar o cobrar por mantenerlo activo.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="feature card h-100 border-0 glass-card">
+            <div class="card-body p-4">
+              <div class="feature-icon"><i class="bi bi-shield-lock"></i></div>
+              <h3 class="h5 fw-bold">100 % en tu navegador</h3>
+              <p class="text-body-secondary mb-0">El QR se genera en tu dispositivo. Ningún enlace se envía ni se guarda en servidores, y no dependes de que esta página siga en línea.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="feature card h-100 border-0 glass-card">
+            <div class="card-body p-4">
+              <div class="feature-icon"><i class="bi bi-brush"></i></div>
+              <h3 class="h5 fw-bold">Diseño a tu medida</h3>
+              <p class="text-body-secondary mb-0">Colores, forma de los puntos, esquinas y logo. Exporta en PNG de alta resolución o SVG vectorial para imprimir.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="py-4 text-center small text-body-secondary">
+    LinkToQR · Hecho con Bootstrap y desplegado en Netlify
+  </footer>
+
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="toast" class="toast align-items-center border-0" role="status" aria-live="polite" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body" id="toastBody">Listo</div>
+        <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.9.2/lib/qr-code-styling.js"
+          integrity="sha384-P7sw4KeI1SDhOs6wYFsBysIIHFqMTgG4y9vunEfL8ZuV0WhnHsh9MRu9Rso17MtY" crossorigin="anonymous"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>
